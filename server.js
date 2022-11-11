@@ -1,42 +1,16 @@
-const express = require('express');
-const app = express();
-const path = require('path');
-const cors = require('cors');
-const corsOptions = require('./config/corsOptions');
-const { logger } = require('./middleware/logEvents');
-const errorHandler = require('./middleware/errorHandler');
-const PORT = process.env.PORT || 3500;
+const express = require('express')
+const app = express()
 
-// custom middleware logger
-app.use(logger);
+app.set('view engine','ejs')
 
-// Cross Origin Resource Sharing
-app.use(cors(corsOptions));
+app.get('/',(req,res) => {
+    res.render('view', {
+        people: [
+         {name: 'basil',age:'40',place:'Idukki'},
+         {name: 'arjun',age: '41',place:'Thrissur'},
+         {name: 'amal',age: '22',place:'Ernakulam'}
+        ]
+    })
+})
 
-// built-in middleware to handle urlencoded form data
-app.use(express.urlencoded({ extended: false }));
-
-// built-in middleware for json 
-app.use(express.json());
-
-//serve static files
-app.use('/', express.static(path.join(__dirname, '/public')));
-
-// routes
-app.use('/', require('./routes/root'));
-app.use('/employees', require('./routes/api/employees'));
-
-app.all('*', (req, res) => {
-    res.status(404);
-    if (req.accepts('html')) {
-        res.sendFile(path.join(__dirname, 'views', '404.html'));
-    } else if (req.accepts('json')) {
-        res.json({ "error": "404 Not Found" });
-    } else {
-        res.type('txt').send("404 Not Found");
-    }
-});
-
-app.use(errorHandler);
-
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(3000,console.log('listening on port 3000'))
